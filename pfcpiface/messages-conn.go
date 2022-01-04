@@ -24,11 +24,9 @@ func (pConn *PFCPConn) sendAssociationRequest() {
 	r := newRequest(asreq)
 	reply, timeout := pConn.sendPFCPRequestMessage(r)
 	if reply != nil {
-		log.Println("Handle Assoc Response")
 		err := pConn.handleAssociationSetupResponse(reply)
 		if err != nil {
 			log.Errorln("Handling of Assoc Setup Reponse Failed ", pConn.RemoteAddr())
-
 			pConn.Shutdown()
 			return
 		}

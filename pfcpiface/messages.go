@@ -101,7 +101,6 @@ func (pConn *PFCPConn) HandlePFCPMsg(buf []byte) {
 	// Incoming response messages
 	// TODO: Session Report Request
 	case message.MsgTypeAssociationSetupResponse, message.MsgTypeHeartbeatResponse:
-		log.Println("Assoc response")
 		pConn.handleIncomingResponse(msg)
 
 	default:
