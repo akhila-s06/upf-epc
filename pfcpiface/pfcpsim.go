@@ -7,7 +7,6 @@ import (
 	"net"
 	"time"
 
-	reuse "github.com/libp2p/go-reuseport"
 	log "github.com/sirupsen/logrus"
 	"github.com/wmnsk/go-pfcp/ie"
 	"github.com/wmnsk/go-pfcp/message"
@@ -370,71 +369,22 @@ func deletePFCP(conn *net.UDPConn, raddr *net.UDPAddr, seid uint64) {
 }
 
 func pfcpSim() {
-	// raddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:"+PFCPPort)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// conn, err := net.DialUDP("udp", nil, raddr)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// seid := createPFCP(conn, raddr)
-
-	// time.Sleep(10 * time.Second)
-	// modifyPFCP(conn, raddr, seid)
-
-	// time.Sleep(10 * time.Second)
-	// deletePFCP(conn, raddr, seid)
-	log.Println("Inside pfcpsim")
-	udpAddr, err := net.ResolveUDPAddr("udp", "127.0.0.2:8806")
-	listenAddr := udpAddr.String()
-	if err != nil {
-		log.Fatal(err)
-	}
-	ln, err := reuse.ListenPacket("udp", listenAddr)
-	log.Println("UDP server up and listening on port 34151")
-
-	if err != nil {
-		log.Println("error while listening")
-		log.Fatal(err)
-	}
-
-	//defer ln.Close()
-	buffer := make([]byte, 1024)
-	n, addr, err := ln.ReadFrom(buffer)
-
-	log.Println("UDP client : ", addr)
-	// cliaddr := addr.String()
-	if err != nil {
-		log.Fatal(err)
-	}
-	msg, err := message.Parse(buffer[:n])
-	if err != nil {
-		log.Errorln("Ignoring undecodable message: ", buffer[:n], " error: ", err)
-		return
-	}
-	asreq, ok := msg.(*message.AssociationSetupRequest)
-	if !ok {
-		log.Fatal("failed to parse assoc setup request")
-		return
-	}
-
-	asres, err := message.NewAssociationSetupResponse(
-		asreq.SequenceNumber,
-		ie.NewRecoveryTimeStamp(time.Now()),
-		ie.NewNodeID("127.0.0.2", "", ""),
-	).Marshal()
+	raddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:"+PFCPPort)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	conn, _ := reuse.Dial("udp", "127.0.0.2:8806", "127.0.0.1:8805")
-	_, err = conn.Write(asres)
-	log.Println("assn response written back by smf:", listenAddr)
+	conn, err := net.DialUDP("udp", nil, raddr)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
+
+	seid := createPFCP(conn, raddr)
+
+	time.Sleep(10 * time.Second)
+	modifyPFCP(conn, raddr, seid)
+
+	time.Sleep(10 * time.Second)
+	deletePFCP(conn, raddr, seid)
 
 }
