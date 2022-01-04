@@ -2,7 +2,7 @@
     "": "Vdev or sim support. Enable `\"mode\": \"af_xdp\"` to enable AF_XDP mode, or `\"mode\": \"af_packet\"` to enable AF_PACKET mode, or `\"mode\": \"sim\"` to generate synthetic traffic from BESS's Source module",
     "": "mode: af_xdp",
     "": "mode: af_packet",
-    "": "mode: sim",
+    "mode": "sim",
 
     "table_sizes": {
         "": "Example sizes based on sim mode and 50K sessions. Customize as per your control plane",
@@ -74,7 +74,7 @@
 
     "": "Parameters for handling outgoing requests",
     "max_req_retries": 5,
-    "resp_timeout": "2s",
+    "resp_timeout": "15s",
 
     "": "Whether to enable Network Token Functions",
     "enable_ntf": false,
@@ -134,6 +134,7 @@
 
     "": "Control plane controller settings",
     "cpiface": {
+        "peers": ["5GTeam-vm"],
         "dnn": "internet",
         "http_port": "8080",
         "enable_ue_ip_alloc": false,
