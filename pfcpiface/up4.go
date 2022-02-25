@@ -23,6 +23,11 @@ import (
 )
 
 const (
+	p4InfoPath       = "/bin/p4info.txt"
+	deviceConfigPath = "/bin/bmv2.json"
+)
+
+const (
 	preQosCounterID = iota
 	postQosCounterID
 
@@ -201,7 +206,7 @@ func (up4 *UP4) setupChannel() error {
 
 	err = up4.p4client.GetForwardingPipelineConfig()
 	if err != nil {
-		err = up4.p4client.SetForwardingPipelineConfig(up4.conf.P4Info, up4.conf.DeviceConfig)
+		err = up4.p4client.SetForwardingPipelineConfig(p4InfoPath, deviceConfigPath)
 		if err != nil {
 			log.Errorf("set forwarding pipeling config failed: %v", err)
 			return err
@@ -403,7 +408,7 @@ func (up4 *UP4) clearAllTables() error {
 }
 
 func (up4 *UP4) initUEPool() error {
-	entry, err := up4.p4RtTranslator.BuildInterfaceTableEntry(up4.ueIPPool, true)
+	entry, err := up4.p4RtTranslator.BuildInterfaceTableEntry(up4.ueIPPool, up4.conf.SliceID, true)
 	if err != nil {
 		return err
 	}
@@ -420,7 +425,7 @@ func (up4 *UP4) initUEPool() error {
 }
 
 func (up4 *UP4) initN3Address() error {
-	entry, err := up4.p4RtTranslator.BuildInterfaceTableEntry(up4.accessIP, false)
+	entry, err := up4.p4RtTranslator.BuildInterfaceTableEntry(up4.accessIP, up4.conf.SliceID, false)
 	if err != nil {
 		return err
 	}
@@ -1152,7 +1157,7 @@ func (up4 *UP4) modifyUP4ForwardingConfiguration(pdrs []pdr, allFARs []far, qers
 		// TODO: the same app filter can be simultaneously used by another UE session. We cannot remove it.
 		//  We should come up with a way to check if an app filter is still in use.
 		if applicationID != 0 && methodType != p4.Update_DELETE {
-			applicationsEntry, err = up4.p4RtTranslator.BuildApplicationsTableEntry(pdr, applicationID)
+			applicationsEntry, err = up4.p4RtTranslator.BuildApplicationsTableEntry(pdr, up4.conf.SliceID, applicationID)
 			if err != nil {
 				return ErrOperationFailedWithReason("build P4rt table entry for Applications table", err.Error())
 			}
